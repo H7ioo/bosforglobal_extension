@@ -2,56 +2,56 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Link, Route, MemoryRouter as Router, Routes } from "react-router-dom";
 import FixListNo from "./components/FixListNo";
+import "./style.css";
+import { cn } from "./utils";
+
+const PAGES = [
+  {
+    pageName: "goods_packing_list_per_company_view",
+    path: "/fix-list-no",
+    name: "List Çeki Düzelt",
+  },
+] as const;
 
 const Popup = () => {
-  // const [count, setCount] = useState(0);
-  // const [currentURL, setCurrentURL] = useState<string>();
-  //
-  // useEffect(() => {
-  // chrome.action.setBadgeText({ text: count.toString() });
-  // }, [count]);
-  //
-  // useEffect(() => {
-  // chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-  // setCurrentURL(tabs[0].url);
-  // });
-  // }, []);
-  //
-  // const changeBackground = () => {
-  // chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-  // const tab = tabs[0];
-  // if (tab.id) {
-  // chrome.tabs.sendMessage(
-  // tab.id,
-  // {
-  // color: "#555555",
-  // },
-  // (msg) => {
-  // console.log("result message:", msg);
-  // }
-  // );
-  // }
-  // });
-  // };
+  const [currentPage, setCurrentPage] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+      var activeTab = tabs[0];
+      if (activeTab.id) {
+        chrome.tabs.sendMessage(
+          activeTab.id,
+          { action: "GET_PAGE" },
+          function (response) {
+            setCurrentPage(response);
+          }
+        );
+      }
+    });
+  }, []);
 
   return (
-    <div style={{ width: "200px", height: "300px" }}>
-      {/* <ul style={{ minWidth: "700px" }}>
-        <li>Current URL: {currentURL}</li>
-        <li>Current Time: {new Date().toLocaleTimeString()}</li>
-      </ul>
-      <button
-        onClick={() => setCount(count + 1)}
-        style={{ marginRight: "5px" }}
-      >
-        count up
-      </button>
-      <button onClick={changeBackground}>change background</button> */}
-      <h1>İşlemler</h1>
+    <div className="w-[200px] h-[300px] p-3">
+      <h1 className="text-3xl pb-2">İşlemler</h1>
       <ul>
-        <li>
-          <Link to="/fix-list-no">Liste Çeki Düzelt</Link>
-        </li>
+        {PAGES.map((page) => {
+          return (
+            <li
+              className={cn("before:content-['>_'] text-base")}
+              key={page.pageName}
+            >
+              <Link
+                to={currentPage === page.pageName ? page.path : "#"}
+                className={cn("underline", {
+                  "line-through": !(currentPage === page.pageName),
+                })}
+              >
+                Liste Çeki Düzelt
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
